@@ -1,38 +1,32 @@
 name: AndroidBuilder
 
-
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
-
 jobs:
   build:
-
-
     runs-on: ubuntu-latest
-
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-
-      - name: set up JDK 1.8
-        uses: actions/setup-java@v1
+      # FIX 1: Updated setup-java to v4 and increased JDK to 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          java-version: 1.8
-
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-
+      # FIX 2: Added memory flag (-Xmx2048m) and stacktrace flag to identify errors
       - name: Build with Gradle
-        run: ./gradlew app:assembleRelease
-
+        run: ./gradlew app:assembleRelease -Xmx2048m --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -40,4 +34,5 @@ jobs:
           name: app-release
           path: ${{github.workspace}}/app/build/outputs/apk/release/*.apk
           if-no-files-found: warn
-          ention-days: 30
+          # FIX 3: Fixed the typo "ention-days" to "retention-days"
+          retention-days: 30
